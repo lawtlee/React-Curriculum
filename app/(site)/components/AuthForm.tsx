@@ -1,6 +1,8 @@
 "use client";
 
 import  { useCallback, useEffect, useState } from "react";
+import { signIn, } from "next-auth/react";
+import axios from "axios";
 
 type Variant = "LOGIN" | "REGISTER"
 
@@ -17,11 +19,31 @@ const AuthForm = () => {
             setVariant("LOGIN")
     },[variant])
 
+    const onSubmit = (data : {}) => {
+        if (variant === "REGISTER"){
+
+        } else if(variant === "LOGIN") {
+            signIn('credentials', {
+                ...data, 
+                redirect: false
+            })
+                .then((callback)=>{
+                    if (callback?.error){
+                        console.log(callback.error)
+                    }
+
+                    if (callback?.ok && !callback?.error){
+                        console.log("Success")
+                    }
+                })
+        }
+    }
+
     return (
         <div
-            className="flex flex-col md:w-[450px] sm:w-[80vw] border-2 border-[#0A2A66]
+            className="flex flex-col md:w-[450px] w-[80vw] border-2 border-[#0A2A66]
             justify-center items-center text-left text-[14px] bg-[#0A2A66] text-white
-            gap-2 py-10 rounded-[38px] relative
+            gap-2 py-10 rounded-[38px] relative z-[1]
         "
         >
             <div>
