@@ -1,6 +1,9 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { signIn } from 'next-auth/react'
+
+import axios from 'axios';
 
 type Variant = "LOGIN" | "REGISTER"
 
@@ -9,6 +12,7 @@ const AuthForm = () => {
     const [email, setEmail] = useState("")
     const [username, setUsername] = useState("")
     const [password, setPassword] = useState("")
+    const [error, setError] = useState(false)
 
     const toggleVariant = useCallback(()=>{
         if (variant === "LOGIN")
@@ -16,6 +20,28 @@ const AuthForm = () => {
         else
             setVariant("LOGIN")
     },[variant])
+
+    const onSubmit = () => {
+      if (variant === "LOGIN"){
+
+      } else{
+        if (email != "" && username != "" && password != ""){
+          const data = {
+            email: email,
+            username: username,
+            password: password
+          }
+          axios.post('/api/register', data)
+            .then(()=>signIn('credentials', data))
+            .catch((err)=>{console.log(err)})
+            .finally(()=>{
+              setError(false)
+            })
+        } else {
+          setError(true);
+        }
+      }
+    }
 
     return(
         <div className="w-[450px] flex flex-col border-2 border-[#0A2A66] bg-[#0A2A66] justify-center
@@ -70,9 +96,9 @@ const AuthForm = () => {
         <div 
           className="w-[80%] flex justify-center items-center mt-5 bg-[#D4A9FF] border-[#252062] h-10 rounded-[8px]
           text-black cursor-pointer select-none"
-          onClick={()=>{}}
+          onClick={()=>{onSubmit()}}
         >
-          Sign In
+          {variant === "LOGIN" ? "Sign In" : "Sign Up"}
         </div>
 
         <div className="flex gap-2 justify-center mt-6 px-2 cursor-pointer select-none">
