@@ -2,7 +2,7 @@
 
 import { useCallback, useState } from "react";
 import { signIn } from 'next-auth/react'
-
+import { useRouter } from "next/navigation";
 import axios from 'axios';
 
 type Variant = "LOGIN" | "REGISTER"
@@ -12,7 +12,10 @@ const AuthForm = () => {
     const [email, setEmail] = useState("")
     const [username, setUsername] = useState("")
     const [password, setPassword] = useState("")
+    const [loading, setLoading] = useState(false)
     const [error, setError] = useState(false)
+
+    const router = useRouter()
 
     const toggleVariant = useCallback(()=>{
         if (variant === "LOGIN")
@@ -22,20 +25,40 @@ const AuthForm = () => {
     },[variant])
 
     const onSubmit = () => {
+      setLoading(true)
       if (variant === "LOGIN"){
+        const data = {
+          email: email,
+          username: username,
+          password: password
+        };
+        signIn('credentials', {
+            ...data, 
+            redirect: false
+        })
+        .then((callback)=>{
+          if (callback?.error){
 
+          }
+
+          if (callback?.ok && !callback?.error){
+            router.push('/users');
+          }
+        })
+        .finally(()=>setLoading(false));
       } else{
         if (email != "" && username != "" && password != ""){
           const data = {
             email: email,
             username: username,
             password: password
-          }
+          };
           axios.post('/api/register', data)
             .then(()=>signIn('credentials', data))
             .catch((err)=>{console.log(err)})
             .finally(()=>{
               setError(false)
+              setLoading(false)
             })
         } else {
           setError(true);
@@ -45,7 +68,7 @@ const AuthForm = () => {
 
     return(
         <div className="w-[450px] flex flex-col border-2 border-[#0A2A66] bg-[#0A2A66] justify-center
-        items-center text-[14px] gap-2 py-10 rounded-[38px] relative
+        items-center text-[14px] gap-2 py-10 rounded-[38px] relative text-white
       ">
         <div className="flex flex-col justify-center items-center">
             <img src="/logo.png" alt="logo"/>
@@ -63,6 +86,7 @@ const AuthForm = () => {
               type="text"
               value={username}
               onChange={(event)=>setUsername(event.target.value)}
+              disabled={loading}
             />
           </div>
         )}
@@ -77,6 +101,7 @@ const AuthForm = () => {
             type="email"
             value={email}
             onChange={(event)=>{setEmail(event.target.value)}}
+            disabled={loading}
           />
         </div>
         
@@ -90,13 +115,14 @@ const AuthForm = () => {
             type="password"
             value={password}
             onChange={(event)=>setPassword(event.target.value)}
+            disabled={loading}
           />
         </div>
         
         <div 
           className="w-[80%] flex justify-center items-center mt-5 bg-[#D4A9FF] border-[#252062] h-10 rounded-[8px]
           text-black cursor-pointer select-none"
-          onClick={()=>{onSubmit()}}
+          onClick={()=>{if (!loading) onSubmit();}}
         >
           {variant === "LOGIN" ? "Sign In" : "Sign Up"}
         </div>
