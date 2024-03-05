@@ -45,7 +45,7 @@ const AuthForm = () => {
 
     return(
         <div className="w-[450px] flex flex-col border-2 border-[#0A2A66] bg-[#0A2A66] justify-center
-        items-center text-[14px] gap-2 py-10 rounded-[38px] relative
+        items-center text-[14px] gap-2 py-10 rounded-[38px] relative text-white
       ">
         <div className="flex flex-col justify-center items-center">
             <img src="/logo.png" alt="logo"/>
